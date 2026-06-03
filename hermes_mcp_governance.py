@@ -10,13 +10,10 @@ This utility validates a few core governance rules from the provided policy:
 It is intentionally dependency-free so it can run in a minimal environment.
 """
 
-from __future__ import annotations
-
 import argparse
 import json
 import os
 import re
-from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -38,12 +35,10 @@ ALLOWED_TOOL_PREFIXES = {
 }
 
 COMMIT_MESSAGE_RE = re.compile(r"^\[Hermes\] [A-Z][A-Za-z0-9 _/-]* [A-Z].+$")
-
-
-@dataclass
 class ValidationResult:
-    ok: bool
-    messages: List[str]
+    def __init__(self, ok: bool, messages: List[str]):
+        self.ok = ok
+        self.messages = messages
 
     def as_dict(self) -> Dict[str, Any]:
         return {"ok": self.ok, "messages": self.messages}
@@ -212,7 +207,7 @@ def cmd_improvements(_: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Hermes MCP governance helper")
-    subparsers = parser.add_subparsers(dest="command", required=True)
+    subparsers = parser.add_subparsers(dest="command")
 
     check = subparsers.add_parser("check", help="validate tool, path, commit, or push rules")
     check.add_argument("--tool", help="tool name to validate")
@@ -239,6 +234,9 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: Optional[List[str]] = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
+    if not hasattr(args, "func"):
+        parser.print_help()
+        return 2
     return args.func(args)
 
 

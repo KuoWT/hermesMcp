@@ -104,6 +104,7 @@ Hermes 應該採用這個順序：
 
 - [`hermes_mcp_governance.py`](./hermes_mcp_governance.py)
 - [`hermes_mcp_server.py`](./hermes_mcp_server.py)
+- [`CENTOS7_SETUP.md`](./CENTOS7_SETUP.md)
 
 ## Usage
 

@@ -6,14 +6,11 @@ over a JSON-RPC 2.0 stdio transport so Hermes can call tools in a structured
 way.
 """
 
-from __future__ import annotations
-
 import json
 import os
 import shutil
 import subprocess
 import sys
-from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
@@ -30,13 +27,11 @@ from hermes_mcp_governance import (
 
 AUDIT_LOG_PATH = Path(os.environ.get("HERMES_AUDIT_LOG", "/private/tmp/hermes_mcp_audit.log"))
 DEFAULT_GIT_REMOTE = os.environ.get("HERMES_GIT_REMOTE", "origin")
-
-
-@dataclass(frozen=True)
 class ToolSpec:
-    name: str
-    description: str
-    input_schema: Dict[str, Any]
+    def __init__(self, name: str, description: str, input_schema: Dict[str, Any]):
+        self.name = name
+        self.description = description
+        self.input_schema = input_schema
 
 
 TOOLS: List[ToolSpec] = [
@@ -264,8 +259,9 @@ def run_git(args: List[str], repo_path: Optional[str]) -> str:
     completed = subprocess.run(
         ["git", "-C", str(repo), *args],
         check=False,
-        capture_output=True,
-        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        universal_newlines=True,
     )
     output = (completed.stdout or "") + (completed.stderr or "")
     if completed.returncode != 0:
